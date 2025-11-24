@@ -44,23 +44,23 @@ function mapDetailprogrammBody(
 }
 
 detailprogrammeRouter.get(
-	'/',
-	async function (req: express.Request, res: express.Response) {
-		res.render('detailprogramme', {
-			user: req.user,
-			page: 'Detailprogramme',
-			detailprogramme: await prisma.detailprogramme.findMany(),
-		});
-	}
+        '/',
+        async function (req: express.Request, res: express.Response) {
+                res.render('detailprogramme', {
+                        user: req.user,
+                        page: 'Detailprogramme',
+                        detailprogramme: await prisma.detailprogramme.findMany(),
+                });
+        }
 );
 
 detailprogrammeRouter.get(
-	'/edit',
-	async function (
-		req: express.Request,
-		res: express.Response,
-		next: express.NextFunction
-	) {
+        '/edit',
+        async function (
+                req: express.Request,
+                res: express.Response,
+                next: express.NextFunction
+        ) {
                 let detailprogramm: detailprogramme = {} as detailprogramme;
                 let activity: activities | null = null;
 
@@ -70,6 +70,16 @@ detailprogrammeRouter.get(
                                         id: req.query.activityId as string,
                                 },
                         });
+
+                        const activityDetailprogramm = await prisma.detailprogramme.findUnique({
+                                where: {
+                                        activityId: activity.id,
+                                },
+                        });
+
+                        if (activityDetailprogramm) {
+                                detailprogramm = activityDetailprogramm;
+                        }
                 }
 
                 if (req.query.id != undefined) {
@@ -83,13 +93,13 @@ detailprogrammeRouter.get(
                                 next(error);
                         }
                 }
-		res.render('editDetailprogramm', {
-			user: req.user,
-			page: 'Detailprogramme',
-			detailprogramm: detailprogramm,
-			activity: activity,
-		});
-	}
+                res.render('editDetailprogramm', {
+                        user: req.user,
+                        page: 'Detailprogramme',
+                        detailprogramm: detailprogramm,
+                        activity: activity,
+                });
+        }
 );
 detailprogrammeRouter.post(
 	'/create',

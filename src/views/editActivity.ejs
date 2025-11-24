@@ -17,12 +17,10 @@
     <label for="name">Name</label>
     <input type="text" name="name" required value="<%= activity.name %>">
 
-    <input type="text" name="detailprogrammId" hidden value="<%= activity.detailprogrammId %>">
-
     <button class=" border-2 rounded-full py-2 px-4 " type="submit" id="save" onclick="confirmSave()">Speichern</button>
   </form>
 
-  <% if(activity.detailprogrammId == "" && Object.keys(activity).length > 0) { %>
+  <% if(!detailprogramm && Object.keys(activity).length > 0) { %>
   <div>
     <button>
       <a href="/detailprogramme/edit?activityId=<%= activity.id %>">Neues DP</a>
