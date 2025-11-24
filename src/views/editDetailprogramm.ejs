@@ -46,7 +46,7 @@
     <input type="text" name="anschlagAbmeldenMail" value="<%= detailprogramm.anschlagAbmeldenMail %>">
 
     <% if(typeof activity != "undefined") { %>
-    <input type="activityId" name="activityId" value="<%= activity.id %>" hidden>
+    <input type="hidden" name="activityId" value="<%= activity.id %>">
     <% } %>
 
     <button class=" border-2 rounded-full py-2 px-4 " type="submit" id="save" onclick="confirmSave()">Speichern</button>
