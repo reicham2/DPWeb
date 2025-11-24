@@ -12,21 +12,22 @@ export const activitiesRouter = express.Router();
 const prisma = new PrismaClient();
 
 async function renderEditActivity(
-	res: express.Response,
-	activityId: string,
-	req: express.Request
+        res: express.Response,
+        activityId: string,
+        req: express.Request
 ) {
-	const activity = await prisma.activities.findUniqueOrThrow({
-		where: {
-			id: activityId,
-		},
-	});
+        const activity = await prisma.activities.findUniqueOrThrow({
+                where: {
+                        id: activityId,
+                },
+        });
 
-	const detailprogramm = await prisma.detailprogramme.findUniqueOrThrow({
-		where: {
-			activityId: activityId,
-		},
-	});
+        const detailprogramm =
+                (await prisma.detailprogramme.findUnique({
+                where: {
+                        activityId: activityId,
+                },
+                })) || undefined;
 
 	const mails = await prisma.mails.findMany({
 		where: {
