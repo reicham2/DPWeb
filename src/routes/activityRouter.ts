@@ -1,5 +1,6 @@
 // ...existing code...
 import express from 'express';
+import multer from 'multer';
 import {
     Activity,
     Program,
@@ -12,6 +13,7 @@ import { error } from 'node:console';
 
 export const activityRouter = express.Router();
 const prisma = new PrismaClient();
+const upload = multer();
 
 async function renderEditActivity(
     res: express.Response,
@@ -127,12 +129,13 @@ activityRouter.get('/', async function (req: express.Request, res: express.Respo
 });
 
 // POST /create -> Activity anlegen
-activityRouter.post('/create', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-      try {
-        const body = req.body as Record<string, any>;
+activityRouter.post('/create', upload.single('SiKo'), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            try {
+                const body = req.body as Record<string, any>;
 
-        // Pflichtfelder prüfen (prisma gibt sonst kryptische Fehlermeldung)
-        const required = ['title','date','start_time','end_time','goal','location','responsible','needs_SiKo'];
+                // Pflichtfelder prüfen (prisma gibt sonst kryptische Fehlermeldung)
+                // `needs_SiKo` ist ein optionales Checkbox-Feld und darf nicht zwingend sein
+                const required = ['title','date','start_time','end_time','goal','location','responsible'];
         const missing = required.filter(k => {
             const v = body[k];
             return v === undefined || v === null || v === '';
@@ -167,7 +170,7 @@ activityRouter.post('/create', async (req: express.Request, res: express.Respons
 });
 
 // POST /update -> Activity updaten
-activityRouter.post('/update', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+activityRouter.post('/update', upload.single('SiKo'), async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
         const activityId = (req.query.id as string) || (req.body.id as string);
         if (!activityId) return next(new Error('Missing activity id for update'));
