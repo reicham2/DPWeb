@@ -80,30 +80,6 @@
 
                   <td class="px-4 py-3 align-top text-right">
                     <div class="inline-flex items-center gap-2">
-                      <script>
-                      (function(){
-                        var td = document.currentScript.parentElement;
-                        var tr = td.closest('tr');
-                        if (!tr) return;
-                        tr.classList.add('cursor-pointer');
-                        var target = '/activity/<%= a.id %>';
-                        tr.setAttribute('tabindex','0');
-                        tr.setAttribute('role','link');
-
-                        tr.addEventListener('click', function(e){
-                          if (e.target.closest('a') || e.target.closest('button') || e.target.closest('form')) return;
-                          window.location.href = target;
-                        });
-
-                        tr.addEventListener('keydown', function(e){
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            if (document.activeElement && (document.activeElement.closest('a') || document.activeElement.closest('button') || document.activeElement.closest('form'))) return;
-                            e.preventDefault();
-                            window.location.href = target;
-                          }
-                        });
-                      })();
-                      </script>
                       <a href="/activity/update?id=<%= a.id %>" class="text-sm text-gray-300 hover:text-white px-3 py-1 rounded-md bg-white/2">Bearbeiten</a>
 
                       <form action="/activity/delete" method="POST" onsubmit="return confirm('Aktivität löschen?')" class="inline">
@@ -131,68 +107,6 @@
   <footer class="mt-12">
     <%- include('./partials/footer'); %>
   </footer>
-
-    <script>
-      (function(){
-        const input = document.getElementById('activitySearch');
-        const clearBtn = document.getElementById('clearSearch');
-        const table = document.getElementById('activitysTable');
-        if (!input || !table) return;
-
-        const tbody = table.tBodies[0];
-        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.id !== 'noResultsRow');
-        const noResultsRow = document.getElementById('noResultsRow');
-
-        function setClearVisible(visible) {
-          if (!clearBtn) return;
-          clearBtn.style.display = visible ? '' : 'none';
-        }
-
-        function filterRows() {
-          const q = input.value.trim().toLowerCase();
-          let visibleCount = 0;
-          if (q === '') {
-            rows.forEach(r => r.style.display = '');
-            visibleCount = rows.length; // when query empty, all rows are visible
-          } else {
-            rows.forEach(r => {
-              const hay = (r.dataset.search || '').toLowerCase();
-              const ok = hay.indexOf(q) !== -1;
-              r.style.display = ok ? '' : 'none';
-              if (ok) visibleCount++;
-            });
-          }
-
-          // show/hide no results row
-          if (noResultsRow) {
-            if (visibleCount === 0) {
-              noResultsRow.classList.remove('hidden');
-            } else {
-              noResultsRow.classList.add('hidden');
-            }
-          }
-
-          setClearVisible(q.length > 0);
-        }
-
-        // debounce
-        let timeout;
-        input.addEventListener('input', () => {
-          clearTimeout(timeout);
-          timeout = setTimeout(filterRows, 120);
-        });
-
-        if (clearBtn) {
-          clearBtn.addEventListener('click', () => {
-            input.value = '';
-            filterRows();
-            input.focus();
-          });
-        }
-
-        // initial state
-        setClearVisible(false);
-      })();
-    </script>
+  <script src="/js/activity.js" defer ></script>
 </body>
 </html>
