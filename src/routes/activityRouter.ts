@@ -157,7 +157,7 @@ activityRouter.get(
             res.render("activity", {
                 user: req.user,
                 page: "Aktivitäten",
-                activitys,
+                activitys
             });
         } catch (err) {
             next(err);
