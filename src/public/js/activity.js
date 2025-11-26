@@ -209,6 +209,24 @@
                     ensureTrailingEmptyExists();
                 });
 
+                // when user leaves an empty input, remove it — but keep one empty input around
+                input.addEventListener('blur', () => {
+                    try {
+                        if (input.value.trim() === '') {
+                            const allInputs = Array.from(materialsContainer.querySelectorAll('input.material-input'));
+                            const emptyCount = allInputs.filter(i => i.value.trim() === '').length;
+                            // only remove this input if there's at least one other empty field
+                            if (emptyCount > 1) {
+                                const parent = input.closest('.material-item');
+                                if (parent) parent.remove();
+                                cleanupEmptyRows();
+                            }
+                        }
+                    } catch (e) {
+                        // defensive: do nothing on unexpected errors
+                    }
+                });
+
                 if (removeBtn) {
                     removeBtn.addEventListener('click', () => {
                         item.remove();
