@@ -204,9 +204,10 @@
                 const removeBtn = item.querySelector('.remove-material');
                 if (input) input.value = value || '';
 
-                // when typing into the last (trailing) input, ensure a new empty one exists
+                // when typing into any input, ensure a trailing empty exists
                 input.addEventListener('input', () => {
                     ensureTrailingEmptyExists();
+                    layoutMaterials();
                 });
 
                 // when user leaves an empty input, remove it — but keep one empty input around
@@ -219,7 +220,8 @@
                             if (emptyCount > 1) {
                                 const parent = input.closest('.material-item');
                                 if (parent) parent.remove();
-                                cleanupEmptyRows();
+                                layoutMaterials();
+                                ensureTrailingEmptyExists();
                             }
                         }
                     } catch (e) {
@@ -230,7 +232,7 @@
                 if (removeBtn) {
                     removeBtn.addEventListener('click', () => {
                         item.remove();
-                        cleanupEmptyRows();
+                        layoutMaterials();
                         ensureTrailingEmptyExists();
                     });
                 }
@@ -238,19 +240,71 @@
                 return item;
             }
 
+            // instead of appending directly to rows, append to container and let layoutMaterials
             function appendToRow(item) {
-                let lastRow = materialsContainer.lastElementChild;
-                if (!lastRow || !lastRow.classList.contains('materials-row')) {
-                    lastRow = document.createElement('div');
-                    lastRow.className = 'materials-row flex gap-3';
-                    materialsContainer.appendChild(lastRow);
+                materialsContainer.appendChild(item);
+                layoutMaterials();
+            }
+
+            // reflow all material items into rows of max 3 items
+            function layoutMaterials() {
+                // preserve focus + caret
+                const active = document.activeElement;
+                let activeIndex = -1;
+                let selStart = null;
+                let selEnd = null;
+
+                const allItemsBefore = Array.from(materialsContainer.querySelectorAll('.material-item'));
+                if (active && active.classList && active.classList.contains('material-input')) {
+                    // find the parent item index
+                    for (let i = 0; i < allItemsBefore.length; i++) {
+                        if (allItemsBefore[i].contains(active)) {
+                            activeIndex = i;
+                            try { selStart = active.selectionStart; selEnd = active.selectionEnd; } catch (e) { selStart = selEnd = null; }
+                            break;
+                        }
+                    }
                 }
-                if (lastRow.children.length >= 3) {
-                    lastRow = document.createElement('div');
-                    lastRow.className = 'materials-row flex gap-3';
-                    materialsContainer.appendChild(lastRow);
+
+                // collect all items
+                const items = allItemsBefore.slice();
+                // clear container
+                materialsContainer.innerHTML = '';
+                // group into rows of 3
+                for (let i = 0; i < items.length; i += 3) {
+                    const row = document.createElement('div');
+                    row.className = 'materials-row flex gap-3';
+                    const chunk = items.slice(i, i + 3);
+                    chunk.forEach(it => {
+                        // ensure each item takes one third
+                        it.classList.remove('flex-1');
+                        it.classList.add('w-1/3', 'min-w-0');
+                        row.appendChild(it);
+                    });
+                    materialsContainer.appendChild(row);
                 }
-                lastRow.appendChild(item);
+
+                // cleanup
+                cleanupEmptyRows();
+
+                // restore focus and caret if possible
+                if (activeIndex >= 0) {
+                    // after reflow, find the item at same index
+                    const allItemsAfter = Array.from(materialsContainer.querySelectorAll('.material-item'));
+                    if (allItemsAfter[activeIndex]) {
+                        const input = allItemsAfter[activeIndex].querySelector('input.material-input');
+                        if (input) {
+                            input.focus();
+                            try {
+                                if (selStart !== null && typeof input.setSelectionRange === 'function') {
+                                    input.setSelectionRange(selStart, selEnd);
+                                }
+                            } catch (e) {
+                                // ignore selection restore failures
+                            }
+                        }
+                    }
+                }
             }
 
             function ensureTrailingEmptyExists() {

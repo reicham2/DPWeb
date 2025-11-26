@@ -99,11 +99,11 @@
 
                                 <!-- single material input template -->
                                 <template id="material-input-template">
-                                  <div class="material-item flex-1 flex items-start gap-2">
+                                  <div class="material-item w-1/3 min-w-0 relative">
                                     <input name="materials[]" type="text" placeholder="Material"
-                                      class="material-input w-full rounded-md bg-white/10 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
+                                      class="material-input block w-full pr-9 rounded-md bg-white/10 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
                                     <button type="button"
-                                      class="remove-material text-gray-300 hover:text-white text-lg leading-none px-2 mt-1"
+                                      class="remove-material absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
                                       aria-label="Material entfernen">✕</button>
                                   </div>
                                 </template>
