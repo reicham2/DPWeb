@@ -6,28 +6,29 @@
   <script type="text/javascript" src="/js/confirmButtonPress.js"></script>
 </head>
 
-<body>
+<body class="bg-gradient-to-b from-gray-900 to-gray-950 min-h-screen text-white">
   <%- include('./partials/nav'); %>
+ <main class="mx-auto max-w-6xl px-4 py-12">
 
-
-    <div class="mx-auto max-w-2xl text-center">
+    <div class="mx-auto max-w-2xl text-center mb-8">
       <h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Aktivität bearbeiten</h1>
       <p class="mt-2 text-lg leading-8 text-gray-400">Bearbeite die Angaben zur Aktivität und speichere die Änderungen.</p>
     </div>
 
     <!-- Centered card to constrain width and add contrast -->
-    <div class="relative mx-auto mt-12 max-w-4xl">
-      <div class="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 ring-1 ring-white/6">
-        <form action="/activity/<%= action %>" method="POST" enctype="multipart/form-data" class="mx-auto mt-0 max-w-xl sm:mt-0">
+    <section class="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 ring-1 ring-white/6 shadow-lg">
+        <form action="/activity/<%= action %>" method="POST" enctype="multipart/form-data" class="mx-auto mt-0 ">
           <% if (action === 'update' && activity && activity.id) { %>
             <input type="hidden" name="id" value="<%= activity.id %>">
           <% } %>
-          <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+          <div class="grid grid-cols-12 gap-x-8 gap-y-6">
+            
             <%- include('./components/input', {
                 label: 'Titel',
                 id: 'title',
                 value: activity.title,
-                isRequired: true
+                isRequired: true,
+                className: 'sm:col-span-6'
               }) %>
 
           <%- include('./components/input', {
@@ -35,7 +36,8 @@
               id: 'date',
               type: 'date',
               value: (activity.date ? activity.date.toISOString().split('T')[0] : ''),
-              isRequired: true
+              isRequired: true,
+              className: 'sm:col-span-2'
             }) %>
 
           <%- include('./components/input', {
@@ -43,7 +45,8 @@
               id: 'start_time',
               type: 'time',
               value: activity.start_time || '',
-              isRequired: true
+              isRequired: true,
+              className: 'sm:col-span-2'
             }) %>
 
           <%- include('./components/input', {
@@ -51,15 +54,8 @@
               id: 'end_time',
               type: 'time',
               value: activity.end_time || '',
-              isRequired: true
-            }) %>
-
-          <%- include('./components/input', {
-              label: 'Ort',
-              id: 'location',
-              type: 'text',
-              value: activity.location || '',
-              isRequired: true
+              isRequired: true,
+              className: 'sm:col-span-2'
             }) %>
 
           <%- include('./components/input', {
@@ -67,17 +63,19 @@
               id: 'responsible',
               type: 'text',
               value: activity.responsible || '',
-              isRequired: true
+              isRequired: true,
+              className: 'sm:col-span-4'
             }) %>
 
-          <div class="sm:col-span-2">
-            <label for="goal" class="block text-sm font-semibold text-white">Ziel</label>
-            <div class="mt-2.5">
-              <textarea id="goal" name="goal" rows="3" required class="block w-full rounded-md bg-white/10 border border-white/10 px-3.5 py-2 text-base text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"><%= activity.goal %></textarea>
-            </div>
-          </div>
-
-          <div>
+          <%- include('./components/input', {
+              label: 'Ort',
+              id: 'location',
+              type: 'text',
+              value: activity.location || '',
+              isRequired: true,
+              className: 'sm:col-span-4'
+            }) %>
+            <div class="sm:col-span-4">
             <label for="departmant" class="block text-sm font-semibold text-white">Abteilung</label>
             <div class="mt-2.5">
               <select   id="departmant" name="departmant" required class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white/10 border border-white/10 py-2 pr-7 pl-3.5 text-base text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6">
@@ -94,6 +92,13 @@
             </div>
           </div>
 
+          <div class="sm:col-span-8">
+            <label for="goal" class="block text-sm font-semibold text-white">Ziel</label>
+            <div class="mt-2.5">
+              <textarea id="goal" name="goal" rows="3" required class="block w-full rounded-md bg-white/10 border border-white/10 px-3.5 py-2 text-base text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"><%= activity.goal %></textarea>
+            </div>
+          </div>
+
           <div class="flex items-center gap-x-3 sm:col-span-2">
             <input id="needs_SiKo" name="needs_SiKo" type="checkbox" value="true" <%= activity.needs_SiKo ? 'checked' : '' %> class="h-4 w-4 text-indigo-500 rounded bg-white/5">
             <label for="needs_SiKo" class="text-sm text-gray-300">Sicherheitskonzept benötigt?</label>
@@ -105,19 +110,19 @@
             <% } %>
           </div>
 
-          <div class="sm:col-span-2">
+          <div class="sm:col-span-8">
             <label for="bad_weather_info" class="block text-sm font-semibold text-white">Schlechtwetter-Info</label>
             <div class="mt-2.5">
               <textarea id="bad_weather_info" name="bad_weather_info" rows="2" class="block w-full rounded-md bg-white/10 border border-white/10 px-3.5 py-2 text-base text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"><%= activity.bad_weather_info || '' %></textarea>
             </div>
           </div>
-            <div class="mt-10">
+          <div class="mt-10 sm:col-span-4">
               <button type="submit" class="block w-full rounded-md bg-indigo-500 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Speichern</button>
           </div>
         </form>
-      </div>
-    </div>
-      
+     
+    </section>
+      </main>
 </body>
 <footer>
   <%- include('./partials/footer'); %>

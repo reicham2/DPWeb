@@ -54,7 +54,7 @@ model sessions {
 
 enum Departmant {
   Pfadi
-  Woelfe
+  Woelfe @map("Wölfe")
   Biber
   Pio
   Leiter
