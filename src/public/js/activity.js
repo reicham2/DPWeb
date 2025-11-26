@@ -1,113 +1,281 @@
-// Delegated row click + keyboard accessibility + search/filter
+// ...existing code...
+// This file now contains shared JS for activity listing (search + row click) and the activity_edit page (program rows + SiKo toggle)
+
 (function () {
-  const input = document.getElementById('activitySearch');
-  const clearBtn = document.getElementById('clearSearch');
-  const table = document.getElementById('activitysTable');
-  if (!table) return;
+    // ---------- Listing page: search + row navigation ----------
+    (function listingModule() {
+        const input = document.getElementById('activitySearch');
+        const clearBtn = document.getElementById('clearSearch');
+        const table = document.getElementById('activitysTable') || document.getElementById('activitysTable') || document.getElementById('activitysTable');
+        const tableAlt = document.getElementById('activitiesTable') || document.getElementById('activitysTable') || document.getElementById('activitysTable');
 
-  const tbody = table.tBodies[0];
-  const noResultsRow = document.getElementById('noResultsRow');
-  const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.id !== 'noResultsRow');
+        const tbl = table || tableAlt;
+        if (!tbl) return;
 
-  // Utility: try to determine an id or href to navigate to for a row
-  function getRowTarget(row) {
-    // 1) data-href attribute
-    if (row.dataset && row.dataset.href) return row.dataset.href;
+        const tbody = tbl.tBodies[0];
+        const noResultsRow = document.getElementById('noResultsRow');
+        const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => r.id !== 'noResultsRow');
 
-    // 2) hidden input[name="id"] (delete form)
-    const idInput = row.querySelector('input[name="id"][type="hidden"]');
-    if (idInput && idInput.value) return '/activity/' + idInput.value;
+        function getRowTarget(row) {
+            if (row.dataset && row.dataset.href) return row.dataset.href;
+            const idInput = row.querySelector('input[name="id"][type="hidden"]');
+            if (idInput && idInput.value) return '/activity/' + idInput.value;
+            const anchors = Array.from(row.querySelectorAll('a[href]'));
+            for (const a of anchors) {
+                const href = a.getAttribute('href');
+                const m1 = href && href.match(/^\/activity\/([a-f0-9\-]+)$/i);
+                if (m1) return href;
+                const m2 = href && href.match(/[?&]id=([^&]+)/);
+                if (m2) return '/activity/' + decodeURIComponent(m2[1]);
+            }
+            return null;
+        }
 
-    // 3) any anchor that contains "/activity/" and looks like a show link
-    const anchors = Array.from(row.querySelectorAll('a[href]'));
-    for (const a of anchors) {
-      const href = a.getAttribute('href');
-      // direct show links like /activity/<id>
-      const m1 = href && href.match(/^\/activity\/([a-f0-9\-]+)$/i);
-      if (m1) return href;
-      // links like /activity/update?id=<id>
-      const m2 = href && href.match(/[?&]id=([^&]+)/);
-      if (m2) return '/activity/' + decodeURIComponent(m2[1]);
-    }
+        // make rows focusable and attach handlers
+        rows.forEach(row => {
+            const target = getRowTarget(row);
+            if (!target) return;
+            row.setAttribute('tabindex', '0');
+            row.setAttribute('role', 'link');
+            row.classList.add('cursor-pointer');
 
-    // 4) fallback: no target
-    return null;
-  }
+            row.addEventListener('click', (e) => {
+                const tg = e.target;
+                if (tg.closest('a') || tg.closest('button') || tg.closest('form') || tg.closest('input')) return;
+                window.location.href = target;
+            });
 
-  // Make rows focusable and set up keyboard/click handling per row
-  rows.forEach(row => {
-    const target = getRowTarget(row);
-    if (!target) return; // don't make it clickable if we can't determine target
+            row.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const el = document.activeElement;
+                if (el && (el.closest('a') || el.closest('button') || el.closest('form') || el.closest('input'))) return;
+                e.preventDefault();
+                window.location.href = target;
+            });
+        });
 
-    row.setAttribute('tabindex', '0');
-    row.setAttribute('role', 'link');
-    row.classList.add('cursor-pointer');
+        // search/filter
+        function setClearVisible(visible) {
+            if (!clearBtn) return;
+            clearBtn.style.display = visible ? '' : 'none';
+        }
 
-    // Click: ignore clicks on interactive elements
-    row.addEventListener('click', (e) => {
-      const tg = e.target;
-      if (tg.closest('a') || tg.closest('button') || tg.closest('form') || tg.closest('input')) return;
-      window.location.href = target;
-    });
+        function filterRows() {
+            if (!input) return;
+            const q = input.value.trim().toLowerCase();
+            let visibleCount = 0;
+            if (q === '') {
+                rows.forEach(r => { r.style.display = ''; visibleCount++; });
+            } else {
+                rows.forEach(r => {
+                    const hay = (r.dataset.search || '').toLowerCase();
+                    const ok = hay.indexOf(q) !== -1;
+                    r.style.display = ok ? '' : 'none';
+                    if (ok) visibleCount++;
+                });
+            }
+            if (noResultsRow) {
+                if (visibleCount === 0) noResultsRow.classList.remove('hidden');
+                else noResultsRow.classList.add('hidden');
+            }
+            setClearVisible(q.length > 0);
+        }
 
-    // Keyboard
-    row.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const el = document.activeElement;
-      if (el && (el.closest('a') || el.closest('button') || el.closest('form') || el.closest('input'))) return;
-      e.preventDefault();
-      window.location.href = target;
-    });
-  });
+        if (input) {
+            let timeout;
+            input.addEventListener('input', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(filterRows, 120);
+            });
+        }
 
-  // Search/filter logic (rows are expected to have data-search attribute)
-  function setClearVisible(visible) {
-    if (!clearBtn) return;
-    clearBtn.style.display = visible ? '' : 'none';
-  }
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (!input) return;
+                input.value = '';
+                filterRows();
+                input.focus();
+            });
+        }
 
-  function filterRows() {
-    if (!input) return;
-    const q = input.value.trim().toLowerCase();
-    let visibleCount = 0;
+        // init
+        setClearVisible(false);
+    })();
 
-    if (q === '') {
-      rows.forEach(r => { r.style.display = ''; visibleCount++; });
-    } else {
-      rows.forEach(r => {
-        const hay = (r.dataset.search || '').toLowerCase();
-        const ok = hay.indexOf(q) !== -1;
-        r.style.display = ok ? '' : 'none';
-        if (ok) visibleCount++;
-      });
-    }
+    // ---------- Edit page: SiKo toggle + dynamic program rows ----------
+    (function editModule() {
+        const programList = document.getElementById('programList');
+        const addProgramBtn = document.getElementById('addProgram');
+        const template = document.getElementById('program-row-template');
+        const programDataJson = document.getElementById('programDataJson');
+        const sikoCheckbox = document.getElementById('needs_SiKo');
+        const sikoContainer = document.getElementById('sikoContainer');
 
-    if (noResultsRow) {
-      if (visibleCount === 0) noResultsRow.classList.remove('hidden');
-      else noResultsRow.classList.add('hidden');
-    }
+        // SiKo toggle
+        if (sikoCheckbox && sikoContainer) {
+            // set initial state based on checkbox
+            sikoContainer.style.display = sikoCheckbox.checked ? 'block' : 'none';
+            sikoCheckbox.addEventListener('change', () => {
+                sikoContainer.style.display = sikoCheckbox.checked ? 'block' : 'none';
+            });
+        }
 
-    setClearVisible(q.length > 0);
-  }
+        if (!programList || !template) return;
 
-  // debounce input
-  if (input) {
-    let timeout;
-    input.addEventListener('input', () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(filterRows, 120);
-    });
-  }
+        let programData = [];
+        if (programDataJson) {
+            try {
+                programData = JSON.parse(programDataJson.textContent || '[]');
+            } catch (e) {
+                programData = [];
+            }
+        }
 
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      if (!input) return;
-      input.value = '';
-      filterRows();
-      input.focus();
-    });
-  }
+        function createInputRow(values = {}) {
+            const clone = template.content ? template.content.cloneNode(true) : document.createRange().createContextualFragment(template.innerHTML);
+            // wrapper may contain top-level nodes; make a container to return single element
+            const container = document.createElement('div');
+            container.appendChild(clone);
 
-  // init
-  setClearVisible(false);
+            // find the first element that represents a program row (the top-level div inside template)
+            const rowEl = container.firstElementChild;
+            if (!rowEl) return null;
+
+            const time = rowEl.querySelector('input[name="program_time"]');
+            const title = rowEl.querySelector('input[name="program_title"]');
+            const description = rowEl.querySelector('textarea[name="program_description"]');
+            const responsible = rowEl.querySelector('input[name="program_responsible"]');
+
+            if (time) time.value = values.time || '';
+            if (title) title.value = values.title || '';
+            if (description) description.value = values.description || '';
+            if (responsible) responsible.value = values.responsible || '';
+
+            const removeBtn = rowEl.querySelector('.remove-program');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', () => {
+                    rowEl.remove();
+                    if (!programList.children.length) addRow({});
+                });
+            }
+
+            return rowEl;
+        }
+
+        function addRow(values = {}) {
+            const row = createInputRow(values);
+            if (row) programList.appendChild(row);
+        }
+
+        // populate existing data or create empty row
+        if (programData.length) {
+            programData.forEach(p => addRow({
+                time: p.time || '',
+                title: p.title || '',
+                description: p.description || '',
+                responsible: p.responsible || ''
+            }));
+        } else {
+            addRow({});
+        }
+
+        if (addProgramBtn) {
+            addProgramBtn.addEventListener('click', () => addRow({}));
+        }
+
+        // ---------- Materials dynamic inputs (max 3 per row, always keep one empty) ----------
+        const materialsContainer = document.getElementById('materialsContainer');
+        const materialTemplate = document.getElementById('material-input-template');
+        const materialsDataJson = document.getElementById('materialsDataJson');
+        const formEl = document.querySelector('form[action^="/activity/"]') || document.querySelector('form');
+
+        if (materialsContainer && materialTemplate) {
+            let materialsData = [];
+            if (materialsDataJson) {
+                try { materialsData = JSON.parse(materialsDataJson.textContent || '[]'); } catch (e) { materialsData = []; }
+            }
+
+            function createMaterialItem(value) {
+                const frag = materialTemplate.content ? materialTemplate.content.cloneNode(true) : document.createRange().createContextualFragment(materialTemplate.innerHTML);
+                const wrapper = document.createElement('div');
+                wrapper.appendChild(frag);
+                const item = wrapper.firstElementChild;
+                const input = item.querySelector('input.material-input');
+                const removeBtn = item.querySelector('.remove-material');
+                if (input) input.value = value || '';
+
+                // when typing into the last (trailing) input, ensure a new empty one exists
+                input.addEventListener('input', () => {
+                    ensureTrailingEmptyExists();
+                });
+
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', () => {
+                        item.remove();
+                        cleanupEmptyRows();
+                        ensureTrailingEmptyExists();
+                    });
+                }
+
+                return item;
+            }
+
+            function appendToRow(item) {
+                let lastRow = materialsContainer.lastElementChild;
+                if (!lastRow || !lastRow.classList.contains('materials-row')) {
+                    lastRow = document.createElement('div');
+                    lastRow.className = 'materials-row flex gap-3';
+                    materialsContainer.appendChild(lastRow);
+                }
+                if (lastRow.children.length >= 3) {
+                    lastRow = document.createElement('div');
+                    lastRow.className = 'materials-row flex gap-3';
+                    materialsContainer.appendChild(lastRow);
+                }
+                lastRow.appendChild(item);
+            }
+
+            function ensureTrailingEmptyExists() {
+                const inputs = Array.from(materialsContainer.querySelectorAll('input.material-input'));
+                const lastInput = inputs[inputs.length - 1];
+                if (!lastInput || lastInput.value.trim() !== '') {
+                    const newItem = createMaterialItem('');
+                    appendToRow(newItem);
+                }
+            }
+
+            function cleanupEmptyRows() {
+                const rows = Array.from(materialsContainer.querySelectorAll('.materials-row'));
+                rows.forEach(row => {
+                    if (row.children.length === 0) row.remove();
+                });
+            }
+
+            // populate existing materials
+            if (materialsData && materialsData.length) {
+                materialsData.forEach(m => {
+                    const it = createMaterialItem(m || '');
+                    appendToRow(it);
+                });
+            }
+
+            // always keep at least one empty input
+            ensureTrailingEmptyExists();
+
+            // before submit, remove empty inputs so they are not sent to server
+            if (formEl) {
+                formEl.addEventListener('submit', (e) => {
+                    const inputs = Array.from(materialsContainer.querySelectorAll('input.material-input'));
+                    inputs.forEach(inp => {
+                        if (inp.value.trim() === '') {
+                            const parent = inp.closest('.material-item');
+                            if (parent) parent.remove();
+                        }
+                    });
+                    cleanupEmptyRows();
+                });
+            }
+        }
+    })();
+
 })();
