@@ -1,0 +1,32 @@
+<div class="grid grid-cols-12 gap-3 items-center sm:items-start">
+    <div class="col-span-12 sm:col-span-2">
+        <label class="block text-xs font-semibold text-gray-200 mb-1">Zeit</label>
+        <input name="program_time" type="text" required
+            class="w-full rounded-md bg-white/10 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+            placeholder="z.B. 10:00" />
+    </div>
+
+    <div class="col-span-12 sm:col-span-7">
+        <div>
+            <label class="block text-xs font-semibold text-gray-200 mb-1">Programmpunkt</label>
+            <input name="program_title" type="text" required
+                class="w-full rounded-md bg-white/10 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                placeholder="Titel" />
+        </div>
+        <div>
+            <label class="block text-xs font-semibold text-gray-200 mb-1"></label>
+            <textarea name="program_description" rows="2"
+                class="w-full rounded-md bg-white/10 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+                placeholder="Details"></textarea>
+        </div>
+    </div>
+    <div class="col-span-12 sm:col-span-2">
+        <label class="block text-xs font-semibold text-gray-200 mb-1">Verantwortlich</label>
+        <input name="program_responsible" type="text" required
+            class="w-full rounded-md bg-white/10 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500"
+            placeholder="Name" />
+    </div>
+    <div class="col-span-2 sm:col-span-1 flex items-center sm:items-start justify-end sm:pt-6">
+        <button type="button" class="remove-program text-gray-300 hover:text-white text-lg leading-none px-2">✕</button>
+    </div>
+</div>

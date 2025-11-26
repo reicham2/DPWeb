@@ -1,19 +1,49 @@
 // ...existing code...
 import express from "express";
 import multer from "multer";
-import {
-    Activity,
-    Program,
-    mails,
-    PrismaClient,
-    Departmant,
-} from "@prisma/client";
-import { activityEntry } from "../types/prismaEntry";
+import { Activity, mails, PrismaClient, Departmant } from "@prisma/client";
+import { activityEntry, programEntry } from "../types/prismaEntry";
 import { error } from "node:console";
 
 export const activityRouter = express.Router();
 const prisma = new PrismaClient();
 const upload = multer();
+
+function asArray(value: any): string[] {
+    if (value === undefined || value === null) return [];
+    return Array.isArray(value) ? value : [value];
+}
+
+function parseProgramsFromBody(body: Record<string, any>): programEntry[] {
+    const times = asArray(body.program_time).map((v) => (v || "").trim());
+    const titles = asArray(body.program_title).map((v) => (v || "").trim());
+    const descriptions = asArray(body.program_description).map((v) =>
+        (v || "").trim()
+    );
+    const responsibles = asArray(body.program_responsible).map((v) =>
+        (v || "").trim()
+    );
+
+    const maxLength = Math.max(
+        times.length,
+        titles.length,
+        descriptions.length,
+        responsibles.length
+    );
+
+    const programs: programEntry[] = [];
+    for (let i = 0; i < maxLength; i++) {
+        const time = times[i] || "";
+        const title = titles[i] || "";
+        const description = descriptions[i] || "";
+        const responsible = responsibles[i] || "";
+
+        if (!time && !title && !description && !responsible) continue;
+        programs.push({ time, title, description, responsible });
+    }
+
+    return programs;
+}
 
 async function renderEditActivity(
     res: express.Response,
@@ -223,6 +253,15 @@ activityRouter.post(
             const activity = await prisma.activity.create({
                 data: data as any,
             });
+            const programs = parseProgramsFromBody(body);
+            if (programs.length) {
+                await prisma.program.createMany({
+                    data: programs.map((p) => ({
+                        ...p,
+                        activityId: activity.id,
+                    })),
+                });
+            }
 
             // Nach Erstellung zur Edit-View springen
             await renderEditActivity(res, activity.id, req);
@@ -292,6 +331,16 @@ activityRouter.post(
                 where: { id: body.id },
                 data: updateData as any,
             });
+            const programs = parseProgramsFromBody(body);
+            await prisma.program.deleteMany({ where: { activityId: activity.id } });
+            if (programs.length) {
+                await prisma.program.createMany({
+                    data: programs.map((p) => ({
+                        ...p,
+                        activityId: activity.id,
+                    })),
+                });
+            }
 
             // Nach Erstellung zur Edit-View springen
             await renderEditActivity(res, activity.id, req);
