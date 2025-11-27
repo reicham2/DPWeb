@@ -110,7 +110,7 @@
 
                                 <!-- materials data as JSON (no inline JS) -->
                                 <script type="application/json"
-                                  id="materialsDataJson"><%- JSON.stringify(activity.materials || []) %></script>
+                                  id="materialsDataJson"><%- JSON.stringify(activity.materials || activity.material || []) %></script>
                               </div>
                             </div>
 
