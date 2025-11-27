@@ -17,53 +17,38 @@
 
             <section class="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 ring-1 ring-white/6 shadow-lg">
                 <div class="grid grid-cols-12 gap-x-8 gap-y-6">
+                    <div class="flex justify-between col-span-12">
 
-                    <div class="sm:col-span-6">
-                        <label class="block text-sm font-semibold text-white">Titel</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.title || '—' %>
+                        <div>
+                            <div class="mt-2 text-gray-200">
+                                <h1 class="text-2xl font-bold">
+                                    <%= activity.title || '—' %>
+                                </h1>
+                                <%= activity.date ? activity.date.toISOString().split('T')[0] : '' %> | <%=
+                                        activity.start_time || '' %> - <%= activity.end_time || '' %>
+                            </div>
                         </div>
-                    </div>
+                        <div class="flex text-sm row gap-x-8 gap-y-6 text-gray-400">
+                            <div class="sm:col-span-4">
+                                <label class="block text-sm font-semibold text-white">Verantwortlich</label>
+                                <div class="mt-2 text-gray-200">
+                                    <%= activity.responsible || '' %>
+                                </div>
+                            </div>
 
-                    <div class="sm:col-span-2">
-                        <label class="block text-sm font-semibold text-white">Datum</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.date ? activity.date.toISOString().split('T')[0] : '' %>
-                        </div>
-                    </div>
+                            <div class="sm:col-span-4">
+                                <label class="block text-sm font-semibold text-white">Ort</label>
+                                <div class="mt-2 text-gray-200">
+                                    <%= activity.location || '' %>
+                                </div>
+                            </div>
 
-                    <div class="sm:col-span-2">
-                        <label class="block text-sm font-semibold text-white">Startzeit</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.start_time || '' %>
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <label class="block text-sm font-semibold text-white">Endzeit</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.end_time || '' %>
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-4">
-                        <label class="block text-sm font-semibold text-white">Verantwortlich</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.responsible || '' %>
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-4">
-                        <label class="block text-sm font-semibold text-white">Ort</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.location || '' %>
-                        </div>
-                    </div>
-
-                    <div class="sm:col-span-4">
-                        <label class="block text-sm font-semibold text-white">Abteilung</label>
-                        <div class="mt-2 text-gray-200">
-                            <%= activity.departmant || '' %>
+                            <div class="sm:col-span-4">
+                                <label class="block text-sm font-semibold text-white">Abteilung</label>
+                                <div class="mt-2 text-gray-200">
+                                    <%= activity.departmant || '' %>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -84,8 +69,12 @@
                                                     <div class="text-sm font-semibold text-white">
                                                         <%= p.title || '—' %>
                                                     </div>
+                                                    <% 
+                                                        const escapeHtml = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+                                                        const desc = p.description ? escapeHtml(p.description).replace(/\r\n|\r|\n/g, '<br>') : '';
+                                                    %>
                                                     <div class="text-xs text-gray-300 mt-1">
-                                                        <%= p.description || '' %>
+                                                        <%- desc %>
                                                     </div>
                                                 </div>
                                                 <div class="text-sm text-gray-200 text-right">
@@ -106,45 +95,44 @@
                         </div>
                     </div>
 
-                    <div class="sm:col-span-6">
+                    <div class="sm:col-span-6 pb-4">
                         <label class="block text-sm font-semibold text-white">Ziel</label>
-                        <div class="mt-2 text-gray-200 whitespace-pre-wrap">
+                        <div class="mt-2 text-gray-200 text-left leading-normal">
                             <%= activity.goal || '' %>
                         </div>
                     </div>
 
-                    <div class="sm:col-span-6">
+                    <div class="sm:col-span-6 pb-4">
                         <label class="block text-sm font-semibold text-white">Schlechtwetter-Info</label>
-                        <div class="mt-2 text-gray-200 whitespace-pre-wrap">
-                            <%= activity.bad_weather_info || '' %>
-                        </div>
+                        <div class="mt-2 text-gray-200 text-left leading-normal"></div>
+                        <%= activity.bad_weather_info || '' %>
                     </div>
+                </div>
 
-                    <div class="sm:col-span-12">
-                        <label class="block text-sm font-semibold text-white">Materialien</label>
-                        <div class="mt-2">
-                            <% const mats=activity.materials || activity.material || []; %>
-                                <% if (mats && mats.length) { %>
-                                    <ul class="space-y-2">
-                                        <% mats.forEach(function(m){ %>
-                                            <li
-                                                class="inline-block rounded-md bg-white/5 px-3 py-1 text-sm text-gray-200">
-                                                <%= m %>
-                                            </li>
-                                            <% }) %>
-                                    </ul>
-                                    <% } else { %>
-                                        <div class="text-gray-300">Keine Materialien angegeben.</div>
-                                        <% } %>
-                        </div>
+                <div class="sm:col-span-12">
+                    <label class="block text-sm font-semibold text-white">Materialien</label>
+                    <div class="mt-2">
+                        <% const mats=activity.materials || activity.material || []; %>
+                            <% if (mats && mats.length) { %>
+                                <ul class="space-y-2">
+                                    <% mats.forEach(function(m){ %>
+                                        <li class="inline-block rounded-md bg-white/5 px-3 py-1 text-sm text-gray-200">
+                                            <%= m %>
+                                        </li>
+                                        <% }) %>
+                                </ul>
+                                <% } else { %>
+                                    <div class="text-gray-300">Keine Materialien angegeben.</div>
+                                    <% } %>
                     </div>
+                </div>
 
-                    <div class="mt-6 sm:col-span-12">
-                        <a href="/activity/update?id=<%= activity.id %>"
-                            class="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20">Bearbeiten</a>
-                        <a href="/activity"
-                            class="ml-2 inline-flex items-center gap-2 rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Zurück</a>
-                    </div>
+                <div class="mt-6 sm:col-span-12">
+                    <a href="/activity/update?id=<%= activity.id %>"
+                        class="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20">Bearbeiten</a>
+                    <a href="/activity"
+                        class="ml-2 inline-flex items-center gap-2 rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-400">Zurück</a>
+                </div>
 
                 </div>
             </section>
