@@ -39,7 +39,9 @@ function parseProgramsFromBody(body: Record<string, any>): programEntry[] {
         const responsible = responsibles[i] || "";
 
         if (!time && !title && !description && !responsible) continue;
-        programs.push({ time, title, description, responsible });
+        // Provide a placeholder activityId to satisfy the `programEntry` type.
+        // It will be overwritten when creating the programs with the real activity id.
+        programs.push({ time, title, description, responsible, activityId: "" } as programEntry);
     }
 
     return programs;
@@ -160,7 +162,7 @@ activityRouter.get(
                 where: { activityId: activity.id },
             });
 
-            res.render("activityDetail", {
+            res.render("activity_view", {
                 user: req.user,
                 page: "Aktivität",
                 activity,
@@ -217,6 +219,7 @@ activityRouter.post(
                 "goal",
                 "location",
                 "responsible",
+                "material",
             ];
             const missing = required.filter((k) => {
                 const v = body[k];
@@ -294,6 +297,7 @@ activityRouter.post(
                 "goal",
                 "location",
                 "responsible",
+                "material",
             ];
             const missing = required.filter((k) => {
                 const v = body[k];
