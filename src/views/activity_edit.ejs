@@ -44,16 +44,16 @@
                             activity.location || '' , isRequired: true, className: 'sm:col-span-4' }) %>
 
                             <div class="sm:col-span-4">
-                              <label for="departmant" class="block text-sm font-semibold text-white">Abteilung</label>
+                              <label for="department" class="block text-sm font-semibold text-white">Abteilung</label>
                               <div class="mt-2.5">
-                                <select id="departmant" name="departmant" required
+                                <select id="department" name="department" required
                                   class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white/10 border border-white/10 py-2 pr-7 pl-3.5 text-base text-white placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6">
-                                  <option value="" disabled <%=!activity.departmant ? 'selected' : '' %>>Bitte Abteilung
+                                  <option value="" disabled <%=!activity.department ? 'selected' : '' %>>Bitte Abteilung
                                     wählen</option>
                                   <% if (typeof departments !=='undefined' && departments.length> 0) { %>
                                     <% departments.forEach(dep=> { %>
                                       <% const value=(dep.name !==undefined) ? dep.name : dep; %>
-                                        <option class="text-black" value="<%= value %>" <%=activity.departmant===value
+                                        <option class="text-black" value="<%= value %>" <%=activity.department===value
                                           ? 'selected' : '' %>><%= value %>
                                         </option>
                                         <% }) %>

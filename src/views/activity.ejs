@@ -56,7 +56,7 @@
             </thead>
             <tbody class="divide-y divide-gray-700">
               <% list.forEach(function(a){ %>
-                <tr class="hover:bg-white/2" data-search="<%= [a.title, a.goal, a.location, a.departmant].filter(Boolean).join(' | ').toLowerCase() %>">
+                <tr class="hover:bg-white/2" data-search="<%= [a.title, a.goal, a.location, a.department].filter(Boolean).join(' | ').toLowerCase() %>">
                   <td class="px-4 py-3 align-top">
                     <div class="text-sm font-semibold text-white"><%= a.title || '—' %></div>
                     <div class="text-xs text-gray-400 mt-1"><%= a.goal ? (a.goal.length > 80 ? a.goal.slice(0,80) + '…' : a.goal) : '' %></div>
@@ -75,7 +75,7 @@
                   </td>
 
                   <td class="px-4 py-3 align-top hidden lg:table-cell text-sm text-gray-200">
-                    <%= a.departmant || '' %>
+                    <%= a.department || '' %>
                   </td>
 
                   <td class="px-4 py-3 align-top text-right">

@@ -1,7 +1,7 @@
 // ...existing code...
 import express from "express";
 import multer from "multer";
-import { Activity, PrismaClient, Departmant } from "@prisma/client";
+import { Activity, PrismaClient, department } from "@prisma/client";
 import { activityEntry, programEntry } from "../types/prismaEntry";
 import { error } from "node:console";
 
@@ -71,7 +71,7 @@ async function renderEditActivity(
     },
   });
 
-  const departments = Object.values(Departmant);
+  const departments = Object.values(department);
 
   res.render("activity_edit", {
     user: req.user,
@@ -100,7 +100,7 @@ async function renderCreateActivityView(
     material: [],
     needs_SiKo: false,
   };
-  const departments = Object.values(Departmant);
+  const departments = Object.values(department);
 
   res.render("activity_edit", {
     user: req.user,
@@ -241,7 +241,7 @@ activityRouter.post(
         goal: body.goal,
         location: body.location,
         responsible: body.responsible,
-        departmant: body.departmant || null,
+        department: body.department || null,
         // accept either `materials[]` (array from inputs) or legacy `material` (csv or single)
         material: Array.isArray(body.materials)
           ? body.materials
@@ -326,7 +326,7 @@ activityRouter.post(
         goal: body.goal,
         location: body.location,
         responsible: body.responsible,
-        departmant: body.departmant || null,
+        department: body.department || null,
         // accept either `materials[]` (array from inputs) or legacy `material` (csv or single)
         material: Array.isArray(body.materials)
           ? body.materials
