@@ -10,7 +10,7 @@ docker-compose exec mongo mongosh --eval "rs.status()"
 
 
 ## Troubleshooting
-Wenn error beim creaieren de
+Wenn ein Fehler beim Erstellen der Activity auftritt, z.B.:
 ```
 Message:
 Invalid `prisma.activity.create()` invocation: Prisma needs to perform transactions, which requires your MongoDB server to be run as a replica set. https://pris.ly/d/mongodb-replica-set
