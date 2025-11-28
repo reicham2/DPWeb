@@ -1,7 +1,7 @@
 // ...existing code...
 import express from "express";
 import multer from "multer";
-import { Activity, mails, PrismaClient, Departmant } from "@prisma/client";
+import { Activity, PrismaClient, Departmant } from "@prisma/client";
 import { activityEntry, programEntry } from "../types/prismaEntry";
 import { error } from "node:console";
 
