@@ -263,6 +263,7 @@ activityRouter.post(
           body.needs_SiKo === "true" ||
           body.needs_SiKo === "1" ||
           body.needs_SiKo === true,
+        SiKo: req.file ? req.file.buffer : null,
         bad_weather_info: body.bad_weather_info || null,
       };
 
@@ -348,6 +349,7 @@ activityRouter.post(
           body.needs_SiKo === "true" ||
           body.needs_SiKo === "1" ||
           body.needs_SiKo === true,
+        SiKo: req.file ? req.file.buffer : null,
         bad_weather_info: body.bad_weather_info || null,
       };
 
