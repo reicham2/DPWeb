@@ -1,5 +1,6 @@
 {
-	"watch": ["src"],
-	"ext": "ts",
-	"exec": "ts-node src/index.ts"
+	"watch": ["src", "views", "public"],
+	"ext": "ts,js,ejs,css",
+	"exec": "node --experimental-specifier-resolution=node --import \"data:text/javascript,import { register } from 'node:module'; import { pathToFileURL } from 'node:url'; register('ts-node/esm', pathToFileURL('./'));\" src/index.ts",
+	"delay": "250"
 }
